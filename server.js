@@ -41,18 +41,21 @@ const lootTable = {
   ],
 };
 
-// 🔑 Kodene dine – legg til / endre her
+// 🔑 Kodene dine – DETTE ER LISTA SOM GJELDER
 const codes = {
   "PK-001":      { used: false },
   "PK-002":      { used: false },
   "PK-003":      { used: false },
-  "PK-LEG-001":  { used: false, forceRarity: "purple" }, // alltid Legendary
-  "PK-HYPER-001":{ used: false, forceRarity: "gold" },   // alltid Hyper Rare
-  // Eksempel på egen kode:
-  // "PV-7G4K-X9": { used: false },
+
+  "PV-TEST-1":   { used: false },
+  "PV-TEST-2":   { used: false },
+
+  // Spesialkoder:
+  "PK-LEG-001":   { used: false, forceRarity: "purple" }, // alltid Legendary
+  "PK-HYPER-001": { used: false, forceRarity: "gold" },   // alltid Hyper Rare
 };
 
-// 📦 Hjelpefunksjon: trekk rarity basert på rarityWeights
+// 📦 Hjelpefunksjon: trekk rarity
 function rollRarity() {
   const entries = Object.entries(rarityWeights);
   const total = entries.reduce((sum, [, w]) => sum + w, 0);
@@ -64,13 +67,13 @@ function rollRarity() {
   return "grey";
 }
 
-// 📦 Hjelpefunksjon: velg tilfeldig premie innenfor en rarity
+// 📦 Hjelpefunksjon: velg premie innenfor rarity
 function pickReward(rarity) {
   const list = lootTable[rarity] || lootTable.grey;
   return list[Math.floor(Math.random() * list.length)];
 }
 
-// 🔗 POST /api/redeem – brukes av html-sidene dine
+// 🔗 POST /api/redeem – frontenden kaller denne
 app.post("/api/redeem", (req, res) => {
   const codeRaw = req.body && req.body.code;
   if (!codeRaw) {
@@ -88,17 +91,14 @@ app.post("/api/redeem", (req, res) => {
     return res.status(400).json({ error: "Denne koden er allerede brukt." });
   }
 
-  // Bestem rarity: tvungen eller tilfeldig
   const rarity = (entry.forceRarity || rollRarity()).toLowerCase();
   const reward = pickReward(rarity);
 
-  // Marker koden som brukt
   entry.used = true;
   entry.rarityWon = rarity;
   entry.itemWon = reward.item;
   entry.img = reward.img;
 
-  // Svar til frontend
   res.json({
     message: "Koden er godkjent! 🎉",
     code,
@@ -109,7 +109,7 @@ app.post("/api/redeem", (req, res) => {
   });
 });
 
-// 🌐 GET / – bare for å teste at serveren lever (Render / localhost)
+// 🌐 GET / – Render healthcheck / test
 app.get("/", (req, res) => {
   res.send("Pokevenner Giveaway API kjører 🧡");
 });
