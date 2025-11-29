@@ -3,22 +3,21 @@ const express = require("express");
 const cors = require("cors");
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
 
-// 🎲 Sannsynlighet for hver rarity (tilfeldig trekk hvis koden ikke har tvungen rarity)
+// 🎲 Sannsynlighet for hver rarity
 const rarityWeights = {
-  grey: 60,    // 60% sjanse – Common
-  green: 25,   // 25% – Rare
-  blue: 10,    // 10% – Super Rare
-  gold: 4,     // 4% – Hyper Rare
-  purple: 1    // 1% – Legendary
+  grey: 60,   // 60% – Common
+  green: 25,  // 25% – Rare
+  blue: 10,   // 10% – Super Rare
+  gold: 4,    // 4% – Hyper Rare
+  purple: 1   // 1% – Legendary
 };
 
-// 🎁 Hva som kan droppes på hver rarity
-// Du kan endre navnene og legge til flere
+// 🎁 Loot per rarity
 const lootTable = {
   grey: [
     { item: "Common bulk-pakke (10 kort)", img: "" },
@@ -42,28 +41,15 @@ const lootTable = {
   ],
 };
 
-// 🔑 HER legger du inn kodene dine
-// key = selve koden, value = info om koden
-// - used: om den er brukt
-// - forceRarity (valgfritt): tvinger en bestemt rarity for den koden
-//
-// EKSEMPLER under – bytt ut / legg til dine egne:
+// 🔑 Kodene dine – legg til / endre her
 const codes = {
-  // Vanlig kode → bruker rarityWeights over
-  "PK-001": { used: false },
-
-  // Flere vanlige
-  "PK-002": { used: false },
-  "PK-003": { used: false },
-"PK-004": { used: false },
-"PK-005": { used: false },
-"PK-006": { used: false },
-
-  // Kode som ALLTID skal gi Legendary
-  "PK-LEG-001": { used: false, forceRarity: "purple" },
-
-  // Kode som alltid gir minst Hyper Rare
-  "PK-HYPER-001": { used: false, forceRarity: "gold" },
+  "PK-001":      { used: false },
+  "PK-002":      { used: false },
+  "PK-003":      { used: false },
+  "PK-LEG-001":  { used: false, forceRarity: "purple" }, // alltid Legendary
+  "PK-HYPER-001":{ used: false, forceRarity: "gold" },   // alltid Hyper Rare
+  // Eksempel på egen kode:
+  // "PV-7G4K-X9": { used: false },
 };
 
 // 📦 Hjelpefunksjon: trekk rarity basert på rarityWeights
@@ -84,7 +70,7 @@ function pickReward(rarity) {
   return list[Math.floor(Math.random() * list.length)];
 }
 
-// 🔗 POST /api/redeem – brukes av begge HTML-sidene
+// 🔗 POST /api/redeem – brukes av html-sidene dine
 app.post("/api/redeem", (req, res) => {
   const codeRaw = req.body && req.body.code;
   if (!codeRaw) {
@@ -106,13 +92,13 @@ app.post("/api/redeem", (req, res) => {
   const rarity = (entry.forceRarity || rollRarity()).toLowerCase();
   const reward = pickReward(rarity);
 
-  // Marker koden som brukt og lagre resultatet (hvis du vil se senere)
+  // Marker koden som brukt
   entry.used = true;
   entry.rarityWon = rarity;
   entry.itemWon = reward.item;
   entry.img = reward.img;
 
-  // Send resultatet tilbake til nettsiden
+  // Svar til frontend
   res.json({
     message: "Koden er godkjent! 🎉",
     code,
@@ -123,7 +109,12 @@ app.post("/api/redeem", (req, res) => {
   });
 });
 
-// Start serveren
+// 🌐 GET / – bare for å teste at serveren lever (Render / localhost)
+app.get("/", (req, res) => {
+  res.send("Pokevenner Giveaway API kjører 🧡");
+});
+
+// 🚀 Start server
 app.listen(PORT, () => {
   console.log(`Giveaway API kjører på port ${PORT}`);
 });
