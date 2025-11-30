@@ -17,7 +17,7 @@ const rarityWeights = {
   purple: 1   // 1% – Legendary
 };
 
-// 🎁 Loot per rarity
+// 🎁 Loot per rarity (tekst – fyll gjerne inn img senere)
 const lootTable = {
   grey: [
     { item: "Common bulk-pakke (10 kort)", img: "" },
@@ -41,21 +41,31 @@ const lootTable = {
   ],
 };
 
-// 🔑 Kodene dine – DETTE ER LISTA SOM GJELDER
+// 🔑 Disse 20 kodene er gyldige (vanskeligere å gjette)
 const codes = {
-  "PK-001":      { used: false },
-  "PK-002":      { used: false },
-  "PK-003":      { used: false },
-
-  "PV-TEST-1":   { used: false },
-  "PV-TEST-2":   { used: false },
-
-  // Spesialkoder:
-  "PK-LEG-001":   { used: false, forceRarity: "purple" }, // alltid Legendary
-  "PK-HYPER-001": { used: false, forceRarity: "gold" },   // alltid Hyper Rare
+  "PV-7G4K-X9": { used: false },
+  "PV-M2QJ-4L": { used: false },
+  "PV-AX9D-73": { used: false },
+  "PV-QP5L-2Z": { used: false },
+  "PV-K7V2-M8": { used: false },
+  "PV-R3TN-91": { used: false },
+  "PV-HL8Q-5X": { used: false },
+  "PV-Z9FD-06": { used: false },
+  "PV-CT2M-8W": { used: false },
+  "PV-N4YJ-3K": { used: false },
+  "PV-W7B9-1Q": { used: false },
+  "PV-UG3L-55": { used: false },
+  "PV-D2XP-9V": { used: false },
+  "PV-FA6R-0N": { used: false },
+  "PV-LX3C-7P": { used: false },
+  "PV-YP9M-12": { used: false },
+  "PV-GQ4Z-88": { used: false },
+  "PV-BT1H-6E": { used: false },
+  "PV-S9KV-24": { used: false },
+  "PV-JM8D-39": { used: false },
 };
 
-// 📦 Hjelpefunksjon: trekk rarity
+// 📦 Hjelpefunksjon: trekk rarity basert på odds
 function rollRarity() {
   const entries = Object.entries(rarityWeights);
   const total = entries.reduce((sum, [, w]) => sum + w, 0);
@@ -83,23 +93,27 @@ app.post("/api/redeem", (req, res) => {
   const code = String(codeRaw).trim().toUpperCase();
   const entry = codes[code];
 
+  // Koden finnes ikke i lista → ugyldig
   if (!entry) {
     return res.status(404).json({ error: "Ugyldig kode." });
   }
 
+  // Allerede brukt
   if (entry.used) {
     return res.status(400).json({ error: "Denne koden er allerede brukt." });
   }
 
-  const rarity = (entry.forceRarity || rollRarity()).toLowerCase();
-  const reward = pickReward(rarity);
+  // Første gang: alltid godkjent → trekk random reward
+  const rarity = rollRarity();          // følger oddsene
+  const reward = pickReward(rarity);    // random item innenfor den rarityen
 
+  // Marker koden brukt + lagre hva som ble trukket (kun i minnet)
   entry.used = true;
   entry.rarityWon = rarity;
   entry.itemWon = reward.item;
-  entry.img = reward.img;
+  entry.img = reward.img || "";
 
-  res.json({
+  return res.json({
     message: "Koden er godkjent! 🎉",
     code,
     rarity,
@@ -109,7 +123,7 @@ app.post("/api/redeem", (req, res) => {
   });
 });
 
-// 🌐 GET / – Render healthcheck / test
+// 🌐 GET / – healthcheck
 app.get("/", (req, res) => {
   res.send("Pokevenner Giveaway API kjører 🧡");
 });
