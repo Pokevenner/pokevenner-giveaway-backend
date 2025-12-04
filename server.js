@@ -41,40 +41,43 @@ const rarityWeights = {
   purple: 1   // Phantasmal Flames (TOPP)
 };
 
-// 🎁 Premiene – med dine bilde-URLer
+// 🔗 Base-url til GitHub raw (frontend-repo)
+const RAW_BASE = "https://raw.githubusercontent.com/Pokevenner/Pokevenner-giveaway-frontend/master/assets/prizes";
+
+// 🎁 Premiene – peker nå på GitHub-bilder
 const lootTable = {
   grey: [
     {
       item: "5x Random EX cards",
-      img: "https://pokevenner-mystery.netlify.app/assets/prizes/5xrandom.jpg",
+      img: `${RAW_BASE}/5xrandom.jpg`,
     },
   ],
 
   green: [
     {
       item: "2x Random Full Art",
-      img: "https://pokevenner-mystery.netlify.app/assets/prizes/2xrandomfullart.jpg",
+      img: `${RAW_BASE}/2xrandomfullart.jpg`,
     },
   ],
 
   blue: [
     {
       item: "Gengar stamped promo",
-      img: "https://pokevenner-mystery.netlify.app/assets/prizes/gengarstamped.jpg",
+      img: `${RAW_BASE}/gengarstamped.jpg`,
     },
   ],
 
   gold: [
     {
       item: "Mega Lopunny EX",
-      img: "https://pokevenner-mystery.netlify.app/assets/prizes/megalopunnyex.jpg",
+      img: `${RAW_BASE}/megalopunnyex.jpg`,
     },
   ],
 
   purple: [
     {
       item: "Phantasmal Flames (TOPP premie)",
-      img: "https://pokevenner-mystery.netlify.app/assets/prizes/phantasmalflames.jpg",
+      img: `${RAW_BASE}/phantasmalflames.jpg`,
     },
   ],
 };
