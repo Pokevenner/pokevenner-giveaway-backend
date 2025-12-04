@@ -146,7 +146,7 @@ app.post("/api/redeem", (req, res) => {
 });
 
 // 🧨 ADMIN: Reset alle koder (bruk BARE selv)
-app.post("/api/admin/reset", (req, res) => {
+app.all("/api/admin/reset", (req, res) => {
   const key = (req.query.key || req.body.key || "").trim();
 
   if (key !== ADMIN_RESET_KEY) {
