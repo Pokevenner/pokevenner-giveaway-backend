@@ -5,6 +5,10 @@ const cors = require("cors");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// 🔐 enkel "hemmelig nøkkel" for å resette koder
+// BYTT DENNE til noe bare du vet, hvis du vil
+const ADMIN_RESET_KEY = process.env.ADMIN_RESET_KEY || "FERDI-RESET-1337";
+
 app.use(cors());
 app.use(express.json());
 
@@ -44,7 +48,7 @@ const rarityWeights = {
 // 🔗 Base-url til GitHub raw (frontend-repo)
 const RAW_BASE = "https://raw.githubusercontent.com/Pokevenner/Pokevenner-giveaway-frontend/master/assets/prizes";
 
-// 🎁 Premiene – peker nå på GitHub-bilder
+// 🎁 Premiene – peker på GitHub-bilder
 const lootTable = {
   grey: [
     {
@@ -100,6 +104,13 @@ function pickReward(rarity) {
   return list[Math.floor(Math.random() * list.length)];
 }
 
+// 🧼 Reset-funksjon: sett alle used = false
+function resetAllCodes() {
+  Object.keys(codes).forEach((code) => {
+    codes[code].used = false;
+  });
+}
+
 // 🔗 POST /api/redeem
 app.post("/api/redeem", (req, res) => {
   const raw = req.body.code;
@@ -132,6 +143,18 @@ app.post("/api/redeem", (req, res) => {
     img: reward.img,
     winner: `Kode ${code}`,
   });
+});
+
+// 🧨 ADMIN: Reset alle koder (bruk BARE selv)
+app.post("/api/admin/reset", (req, res) => {
+  const key = (req.query.key || req.body.key || "").trim();
+
+  if (key !== ADMIN_RESET_KEY) {
+    return res.status(403).json({ error: "Ikke autorisert." });
+  }
+
+  resetAllCodes();
+  return res.json({ ok: true, message: "Alle koder er resatt." });
 });
 
 // 🌐 Test route
